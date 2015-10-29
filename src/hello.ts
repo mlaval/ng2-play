@@ -1,14 +1,41 @@
-import {Component, bootstrap} from 'angular2/angular2';
+import {Component, bootstrap, provide, Renderer, NgIf, NgFor, } from 'angular2/angular2';
+import {CustomRenderer} from './custom-renderer';
 
 @Component({
-    selector: 'hello-app',
-    template: `
-        <h1>Hello, {{name}}!</h1>
-        Say hello to: <input [value]="name" (input)="name = $event.target.value">
-    `
+  selector: 'sub-note',
+  template: `<ng-content select="bold"></ng-content>
+  <italic>Created with Angular2  <ng-content></ng-content></italic>`
+})
+export class SubNote {}
+
+@Component({
+  selector: 'hello-app',
+  template: `<header1>Hello {{name}}!</header1>
+    Say hello to the <bold>world</bold>
+    <md-link url="http://www.github.com">Github</md-link>
+    <md-link [url]="url">Angular</md-link>
+    <md-link url="{{url}}">Angular</md-link>
+    <md-link [attr.url]="url">Angular</md-link>
+    <bold *ng-if="maybe">Maybe you can see that</bold>
+    <bold *ng-for="#item of items">Item {{item}}</bold>
+
+    <sub-note><bold>Test</bold>with love</sub-note>`,
+  directives: [NgIf, NgFor, SubNote]
 })
 export class HelloApp {
-    name: string = 'World';
+  name: string = 'world';
+  url: string = 'http://www.angularjs.org';
+  maybe: boolean = true;
+  items: Array<number> = [1, 2, 3];
+
+  constructor() {
+    setTimeout(() => {
+      this.name = 'reader';
+      this.url = 'http://www.angular.io';
+      this.maybe = false;
+      this.items.push(42);
+    }, 1000);
+  }
 }
 
-bootstrap(HelloApp);
+bootstrap(HelloApp, [CustomRenderer, provide(Renderer, {useExisting: CustomRenderer})]);
